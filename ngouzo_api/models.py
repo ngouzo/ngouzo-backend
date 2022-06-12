@@ -286,3 +286,22 @@ class StudentBusAttendance(models.Model):
     arrive_school = models.BooleanField(default=False)
     picked_at = models.DateTimeField()
     arrived_at = models.DateTimeField()
+
+
+# Default
+'''
+student_payment,
+other,
+employee_payment,
+bus_payment
+'''
+
+
+class CashReport(models.Model):
+    school_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    description = models.CharField(default='', blank=True)
+    debit = models.FloatField(default=0)
+    credits = models.FloatField(default=0)
+    type = models.CharField(default='', blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
