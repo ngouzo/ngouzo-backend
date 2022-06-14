@@ -29,6 +29,7 @@ class User(models.Model):
     last_name = models.CharField(max_length=100, blank=True, default='')
     username = models.CharField(max_length=50, blank=True, default='')
     password = models.CharField(max_length=16, blank=True, default='')
+    is_parent = models.BooleanField(blank=True, default=False)
     is_admin = models.BooleanField(
         blank=True, default=False)  # Use as school  id
     is_active = models.BooleanField(default=False)
@@ -71,7 +72,6 @@ class UserProfile(models.Model):
     is_secretary = models.BooleanField(blank=True, default=False)
     is_accounting = models.BooleanField(blank=True, default=False)
     is_driver = models.BooleanField(blank=True, default=False)
-    is_parent = models.BooleanField(blank=True, default=False)
     is_cashier = models.BooleanField(blank=True, default=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now_add=True)
@@ -134,9 +134,9 @@ class TeacherClassModule(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now_add=True)
 
-
 # Students  sections
 # To be used by secretary account
+
 
 class Students(models.Model):
     school_id = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -223,7 +223,7 @@ class StudentMarksEvaluation(models.Model):
 
 
 class EmployeeFinancial(models.Model):
-    teach_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    employee_id = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.FloatField(blank=True, default='')
     type = models.CharField(max_length=100, blank=True, default='')
     currency = models.ForeignKey(Currencies, on_delete=models.CASCADE)
@@ -245,7 +245,7 @@ JANUARY
 
 
 class EmployeePaymentHistory(models.Model):
-    teach_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    employee_id = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.FloatField(blank=True, default='')
     month = models.CharField(max_length=100, default='', blank=True)
     year = models.CharField(max_length=100, default='', blank=True)
@@ -290,4 +290,47 @@ class CashReport(models.Model):
     credits = models.FloatField(default=0)
     type = models.CharField(max_length=100, default='', blank=True)
     created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
+
+
+# Parent profile
+
+class ParentProfile(models.Model):
+    parent_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    picture = models.ImageField(upload_to='uploads/', blank=True)
+    sex = models.CharField(max_length=10, blank=True, default='')
+    birth_date = models.DateField(blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
+
+
+class ParentSchool(models.Model):
+    school_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    parent_profile_id = models.ForeignKey(
+        ParentProfile, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
+
+
+class ParentSchoolStudent(models.Model):
+    parent_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    student_id = models.ForeignKey(Students, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
+
+
+class TeacherPost(models.Model):
+    parent_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    teacher_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.TextField(default='', blank=True)
+    sent_at = models.DateTimeField(auto_now_add=True)
+    removed_at = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
+
+
+class PostCommunication(models.Model):
+    school_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.TextField(default='', blank=True)
+    sent_at = models.DateTimeField(auto_now_add=True)
+    removed_at = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now_add=True)
