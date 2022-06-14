@@ -1,11 +1,6 @@
 from operator import mod
 from unittest import defaultTestLoader
 from django.db import models
-from pygments.lexers import get_all_lexers
-from pygments.styles import get_all_styles
-
-LEXERS = [item for item in get_all_lexers() if item[1]]
-STYLE_CHOICES = sorted([(item, item) for item in get_all_styles()])
 
 
 class SchoolClasses(models.Model):
@@ -31,9 +26,10 @@ class User(models.Model):
     name = models.CharField(max_length=100, blank=True, default='')
     logo = models.ImageField(upload_to='uploads/', blank=True)
     first_name = models.CharField(max_length=100, blank=True, default='')
-    last_name = models.CharField(max_length=100, default=True, default='')
+    last_name = models.CharField(max_length=100, blank=True, default='')
     username = models.CharField(max_length=50, blank=True, default='')
     password = models.CharField(max_length=16, blank=True, default='')
+    is_parent = models.BooleanField(blank=True, default=False)
     is_admin = models.BooleanField(
         blank=True, default=False)  # Use as school  id
     is_active = models.BooleanField(default=False)
@@ -69,7 +65,6 @@ class UserAddress(models.Model):
 
 class UserProfile(models.Model):
     school_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     picture = models.ImageField(upload_to='uploads/', blank=True)
     sex = models.CharField(max_length=10, blank=True, default='')
     birth_date = models.DateField(blank=True)
@@ -77,7 +72,6 @@ class UserProfile(models.Model):
     is_secretary = models.BooleanField(blank=True, default=False)
     is_accounting = models.BooleanField(blank=True, default=False)
     is_driver = models.BooleanField(blank=True, default=False)
-    is_parent = models.BooleanField(blank=True, default=False)
     is_cashier = models.BooleanField(blank=True, default=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now_add=True)
@@ -117,7 +111,7 @@ class ModuleToClass(models.Model):
     class_id = models.ForeignKey(SchoolClasses, on_delete=models.CASCADE)
     module_id = models.ForeignKey(Modules, on_delete=models.CASCADE)
     grades = models.FloatField(blank=True)
-    hours = models.CharField(blank=True, default='')
+    hours = models.CharField(max_length=100, blank=True, default='')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now_add=True)
     deleted = models.DateTimeField(auto_now_add=True)
@@ -126,7 +120,6 @@ class ModuleToClass(models.Model):
 
 
 class TeacherClass(models.Model):
-    school_id = models.ForeignKey(User, on_delete=models.CASCADE)
     teach_id = models.ForeignKey(User, on_delete=models.CASCADE)
     class_id = models.ForeignKey(SchoolClasses, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
@@ -141,9 +134,9 @@ class TeacherClassModule(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now_add=True)
 
-
 # Students  sections
 # To be used by secretary account
+
 
 class Students(models.Model):
     school_id = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -195,7 +188,7 @@ class StudentPayment(models.Model):
     payment_category = models.ForeignKey(
         PaymentCategories, on_delete=models.CASCADE)
     fee_type = models.ForeignKey(FeeType, on_delete=models.CASCADE)
-    description = models.CharField(default='', blank=True)
+    description = models.CharField(max_length=500, default='', blank=True)
     amount_paid = models.FloatField()
     currency = models.ForeignKey(Currencies, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
@@ -230,9 +223,9 @@ class StudentMarksEvaluation(models.Model):
 
 
 class EmployeeFinancial(models.Model):
-    teach_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    employee_id = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.FloatField(blank=True, default='')
-    type = models.CharField(blank=True, default='')
+    type = models.CharField(max_length=100, blank=True, default='')
     currency = models.ForeignKey(Currencies, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now_add=True)
@@ -252,12 +245,12 @@ JANUARY
 
 
 class EmployeePaymentHistory(models.Model):
-    teach_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    employee_id = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.FloatField(blank=True, default='')
-    month = models.CharField(default='', blank=True)
-    year = models.CharField(default='', blank=True)
-    payment_type = models.CharField(blank=True, default='')
-    description = models.CharField(default='', blank=True)
+    month = models.CharField(max_length=100, default='', blank=True)
+    year = models.CharField(max_length=100, default='', blank=True)
+    payment_type = models.CharField(max_length=100, blank=True, default='')
+    description = models.CharField(max_length=100, default='', blank=True)
     currency = models.ForeignKey(Currencies, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now_add=True)
@@ -270,13 +263,6 @@ class StudentBusSubscription(models.Model):
     updated = models.DateTimeField(auto_now_add=True)
 
 # To be used by cashier
-
-
-class StudentBusSubscription(models.Model):
-    school_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    student_id = models.ForeignKey(Students, on_delete=models.CASCADE)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now_add=True)
 
 
 class StudentBusAttendance(models.Model):
@@ -299,9 +285,52 @@ bus_payment
 
 class CashReport(models.Model):
     school_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    description = models.CharField(default='', blank=True)
+    description = models.CharField(max_length=100, default='', blank=True)
     debit = models.FloatField(default=0)
     credits = models.FloatField(default=0)
-    type = models.CharField(default='', blank=True)
+    type = models.CharField(max_length=100, default='', blank=True)
     created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
+
+
+# Parent profile
+
+class ParentProfile(models.Model):
+    parent_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    picture = models.ImageField(upload_to='uploads/', blank=True)
+    sex = models.CharField(max_length=10, blank=True, default='')
+    birth_date = models.DateField(blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
+
+
+class ParentSchool(models.Model):
+    school_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    parent_profile_id = models.ForeignKey(
+        ParentProfile, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
+
+
+class ParentSchoolStudent(models.Model):
+    parent_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    student_id = models.ForeignKey(Students, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
+
+
+class TeacherPost(models.Model):
+    parent_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    teacher_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.TextField(default='', blank=True)
+    sent_at = models.DateTimeField(auto_now_add=True)
+    removed_at = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now_add=True)
+
+
+class PostCommunication(models.Model):
+    school_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.TextField(default='', blank=True)
+    sent_at = models.DateTimeField(auto_now_add=True)
+    removed_at = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now_add=True)
