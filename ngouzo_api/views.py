@@ -1,3 +1,3 @@
-from django.shortcuts import render
+from .ng_views.login import user_login
 
-# Create your views here.
+LOGIN = user_login
