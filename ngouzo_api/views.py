@@ -1,3 +1,5 @@
-from .ng_views.login import user_login
+from .ng_views.ngObtainTokenPair import NGObtainTokenPairView
+from .ng_views.auth import RegisterView, login_user
 
-LOGIN = user_login
+REGISTER_VIEW = RegisterView
+LOGIN_VIEW = login_user
