@@ -1,10 +1,64 @@
+import email
+from django.forms import EmailField
+from pkg_resources import require
 from rest_framework import serializers
-from models import *
+from rest_framework.validators import UniqueValidator
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth.password_validation import validate_password
+
+from .models import *
+
+
+class UserEmailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserEmail
+        fields = "__all__"
+
+
+class UserPhoneNumberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserPhoneNumber
+        fields = "__all__"
 
 
 class UserSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    phone_number = serializers.CharField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+
+    password = serializers.CharField(
+        write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
+
     class Meta:
         model = User
+        fields = ('username', 'password', 'password2',
+                  'name', 'phone_number', 'email')
+        extra_kwargs = {
+            'name': {'required': True}
+        }
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError(
+                {"password": "Password fields didn't match."})
+        return attrs
+
+    def create(self, validate_data):
+        user = User.objects.create(
+            username=validate_data['username'],
+            name=validate_data['name'],
+            email=validate_data['email'],
+            phone_number=validate_data['phone_number']
+        )
+        user.set_password(validate_data['password'])
+        user.save()
+        return user
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -27,19 +81,10 @@ class CurrencySerializer(serializers.ModelSerializer):
         model = Currencies
 
 
-class UserPhoneNumberSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserPhoneNumber
-
-
-class UserEmailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserEmail
-
-
 class UserAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAddress
+        fields = "__all__"
 
 
 class ModuleSerializer(serializers.ModelSerializer):
@@ -145,3 +190,13 @@ class TeacherPostSerializer(serializers.ModelSerializer):
 class PostCommunicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostCommunication
+
+# Create token obtain
+
+
+class NGTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super(NGTokenObtainPairSerializer).get_token(user)
+        token['username'] = user.username
+        return token

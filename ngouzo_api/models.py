@@ -1,6 +1,8 @@
+import email
 from operator import mod
 from unittest import defaultTestLoader
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser
 
 
 class SchoolClasses(models.Model):
@@ -22,13 +24,12 @@ class Currencies(models.Model):
     updated = models.DateTimeField(auto_now_add=True)
 
 
-class User(models.Model):
+class User(AbstractBaseUser):
     name = models.CharField(max_length=100, blank=True, default='')
+    email = models.CharField(max_length=100, blank=True, default='')
+    phone_number = models.CharField(max_length=100, blank=True, default='')
     logo = models.ImageField(upload_to='uploads/', blank=True)
-    first_name = models.CharField(max_length=100, blank=True, default='')
-    last_name = models.CharField(max_length=100, blank=True, default='')
     username = models.CharField(max_length=50, blank=True, default='')
-    password = models.CharField(max_length=16, blank=True, default='')
     is_parent = models.BooleanField(blank=True, default=False)
     is_admin = models.BooleanField(
         blank=True, default=False)  # Use as school  id
@@ -40,14 +41,16 @@ class User(models.Model):
 
 
 class UserPhoneNumber(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="phone_numbers",)
     phone_number = models.CharField(max_length=50, blank=True, default='')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now_add=True)
 
 
 class UserEmail(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="emails",)
     email = models.CharField(max_length=100, blank=True, default='')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now_add=True)
