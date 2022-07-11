@@ -1,19 +1,11 @@
-# Pull base image
-FROM python:3.10.2-slim-bullseye
+FROM golang:latest
 
-# Set environment variables
-ENV PIP_DISABLE_PIP_VERSION_CHECK 1
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+WORKDIR /app
 
-# Work directory
-WORKDIR /usr/src/app
+COPY ./ /app
 
-# Install dependencies
-COPY ./requirements.txt .
-RUN pip install -r requirements.txt
+RUN go mod download
 
-# Copy project
-COPY . .
+RUN go install github.com/githubnemo/CompileDaemon
 
-USER root
+ENTRYPOINT CompileDaemon --build="go build main.go" --command=./main
