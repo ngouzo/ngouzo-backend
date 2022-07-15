@@ -25,7 +25,7 @@ type UpdateClasses struct {
 func (class *Classes) ResponseMap() map[string]interface{} {
 	resp := make(map[string]interface{})
 	resp["id"] = class.ID
-	resp["user_id"] = class.Name
+	resp["name"] = class.Name
 
 	return resp
 }
