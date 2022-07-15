@@ -23,13 +23,14 @@ func (userProfile *UserProfile) TableName() string {
 }
 
 type SaveUserProfile struct {
+	UserID    int    `form:"user_id" binding:"required"`
 	Sex       string `form:"sex"`
 	BirthDate string `form:"birth_date"`
 	Picture   string `form:"picture"`
 }
 
 type UpdateUserProfile struct {
-	UserID    int    `form:"user_id" binding:"required"`
+	ID        int    `form:"id" binding:"required"`
 	Sex       string `form:"sex"`
 	BirthDate string `form:"birth_date"`
 	Picture   string `form:"picture"`
