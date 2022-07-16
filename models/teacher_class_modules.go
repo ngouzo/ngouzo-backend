@@ -18,7 +18,7 @@ func (teacherClassModule *TeacherClassModules) TableName() string {
 
 type RecordTeacherClassModules struct {
 	ModuleID  int `form:"module_id" binding:"required"`
-	TeacherID int `form:"school_id" binding:"required"`
+	TeacherID int `form:"teacher_id" binding:"required"`
 }
 
 type UpdateTeacherClassModules struct {
