@@ -4,8 +4,8 @@ import "time"
 
 type ClassModules struct {
 	ID        int64     `gorm:"primary_key;auto_increment" json:"id"`
-	Grades    string    `gorm:"grades"`
-	Hours     float64   `gorm:"hours"`
+	Grades    float64   `gorm:"grades"`
+	Hours     string    `gorm:"hours"`
 	ClassID   int       `json:"class_id"`
 	Class     Classes   `gorm:"foreignKey:ClassID"`
 	ModuleID  int       `json:"module_id"`
@@ -29,6 +29,7 @@ type RecordClassModules struct {
 }
 
 type UpdateClassModules struct {
+	ID       int64   `form:"id" binding:"required"`
 	Hours    string  `form:"hours"`
 	Grades   float64 `form:"grades"`
 	ClassID  int     `form:"class_id" binding:"required"`

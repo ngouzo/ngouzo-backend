@@ -26,6 +26,7 @@ type RecordPaymentCategories struct {
 }
 
 type UpdatePaymentCategories struct {
+	ID         int64   `form:"id"`
 	Amount     float64 `form:"amount"`
 	CurrencyID int     `form:"currency_id" binding:"required"`
 }

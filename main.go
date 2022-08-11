@@ -29,5 +29,5 @@ func main() {
 		errors.New("Unable autoMigrateDB - " + err.Error())
 	}
 
-	router.Gin.Run(":7070")
+	router.Gin.Run(":7000")
 }
