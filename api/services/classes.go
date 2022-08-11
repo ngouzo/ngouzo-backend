@@ -16,7 +16,7 @@ func RecordClassesService(repo repositories.ClassesRepository) ClassesService {
 }
 
 func (c ClassesService) RecordClasses(class models.RecordClasses) error {
-	return c.repo.RecordClasses((class))
+	return c.repo.RecordClasses(class)
 }
 
 func (c ClassesService) UpdateClasses(class models.UpdateClasses) error {
